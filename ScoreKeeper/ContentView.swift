@@ -21,51 +21,40 @@ struct ContentView: View {
                 .font(.title)
                 .bold()
                 .padding(.bottom)
-            EditButton()
-            
-            if editMode == .active {
-                List {
-                    ForEach($players) { $player in
-                        HStack {
-                            TextField("Name", text: $player.name)
-                            Spacer()
-                            Stepper("", value: $player.score, in: 0...20)
-                                .labelsHidden()
-                        }
-                    }
-                    .onMove(perform: movePlayer)
-                    .onDelete(perform: deletePlayer)
-                }
-            } else {
-                Grid {
-                    GridRow {
+            List {
+                Section {
+                    HStack {
                         Text("Player")
-                            .gridColumnAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         Text("Score")
+                            .frame(maxWidth: .infinity, alignment: .leading)
                     }
                     .font(.headline)
-                    ForEach($players) { $player in
-                        GridRow {
-                            TextField("Name", text: $player.name)
+                }
+                ForEach($players) { $player in
+                    HStack {
+                        TextField("Name", text: $player.name)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack {
                             Text("\(player.score)")
-                            Stepper(
-                                "Score",
-                                value: $player.score,
-                                in: 0...20
-                            )
-                            .labelsHidden()
-                            ColorPicker("Color", selection: $player.color)
+                            Stepper("Score", value: $player.score, in: 0...20)
                                 .labelsHidden()
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        ColorPicker("Color", selection: $player.color)
+                            .labelsHidden()
                     }
                 }
-                .padding(.vertical)
-                
+                .onMove(perform: movePlayer)
+                .onDelete(perform: deletePlayer)
+            }
+            .listStyle(.inset)
+            HStack {
                 Button("Add Player", systemImage: "plus") {
                     players.append(Player(name: "", score: 0, color: randomColor()))
                 }
-                
                 Spacer()
+                EditButton()
             }
         }
         .padding()
