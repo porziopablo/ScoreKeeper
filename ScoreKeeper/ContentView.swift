@@ -8,11 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var players: [Player] = [
-        Player(name:"Juli", score:0, color: .red),
-        Player(name:"Mauro", score:0, color: .blue),
-        Player(name:"Pablo", score:0, color: .green),
-    ]
+    @State private var scoreboard = Scoreboard()
+    @State private var startingPoints = 0
     @State private var editMode: EditMode = .inactive
     
     var body: some View {
@@ -21,6 +18,14 @@ struct ContentView: View {
                 .font(.title)
                 .bold()
                 .padding(.bottom)
+            SettingsView(startingPoints: $startingPoints).padding(.bottom)
+            HStack {
+                Button("Add Player", systemImage: "plus") {
+                    scoreboard.players.append(Player(name: "", score: 0, color: randomColor()))
+                }
+                Spacer()
+                EditButton()
+            }
             List {
                 Section {
                     HStack {
@@ -31,7 +36,7 @@ struct ContentView: View {
                     }
                     .font(.headline)
                 }
-                ForEach($players) { $player in
+                ForEach($scoreboard.players) { $player in
                     HStack {
                         TextField("Name", text: $player.name)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -49,12 +54,20 @@ struct ContentView: View {
                 .onDelete(perform: deletePlayer)
             }
             .listStyle(.inset)
-            HStack {
-                Button("Add Player", systemImage: "plus") {
-                    players.append(Player(name: "", score: 0, color: randomColor()))
-                }
-                Spacer()
-                EditButton()
+            switch scoreboard.state {
+                case .setup:
+                    Button("Start Game", systemImage: "play.fill") {
+                        scoreboard.state = .playing
+                        scoreboard.resetScores(to: startingPoints)
+                    }
+                case .playing:
+                    Button("End Game", systemImage: "stop.fill") {
+                        scoreboard.state = .gameOver
+                    }
+                case .gameOver:
+                    Button("Reset Game", systemImage: "arrow.counterclockwise") {
+                        scoreboard.state = .setup
+                    }
             }
         }
         .padding()
@@ -70,11 +83,11 @@ struct ContentView: View {
     }
     
     private func deletePlayer(at offsets: IndexSet) {
-        players.remove(atOffsets: offsets)
+        scoreboard.players.remove(atOffsets: offsets)
     }
 
     private func movePlayer(from source: IndexSet, to destination: Int) {
-        players.move(fromOffsets: source, toOffset: destination)
+        scoreboard.players.move(fromOffsets: source, toOffset: destination)
     }
 }
 
