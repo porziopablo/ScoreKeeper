@@ -18,13 +18,20 @@ struct ContentView: View {
                 .font(.title)
                 .bold()
                 .padding(.bottom)
-            SettingsView(startingPoints: $startingPoints).padding(.bottom)
+            SettingsView(
+                startingPoints: $startingPoints,
+                doesHighestScoreWin: $scoreboard.doesHighestScoreWin
+            )
+            .padding(.bottom)
+            .disabled(scoreboard.state != .setup || editMode.isEditing)
             HStack {
                 Button("Add Player", systemImage: "plus") {
                     scoreboard.players.append(Player(name: "", score: 0, color: randomColor()))
                 }
+                .opacity(scoreboard.state == .setup ? 1 : 0)
                 Spacer()
                 EditButton()
+                .opacity(scoreboard.state == .setup ? 1 : 0)
             }
             List {
                 Section {
@@ -33,28 +40,41 @@ struct ContentView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         Text("Score")
                             .frame(maxWidth: .infinity, alignment: .leading)
+                            .opacity(scoreboard.state == .setup ? 0 : 1)
                     }
                     .font(.headline)
                 }
                 ForEach($scoreboard.players) { $player in
                     HStack {
-                        TextField("Name", text: $player.name)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack {
+                            if scoreboard.winners.contains(player) {
+                                Image(systemName: "crown.fill")
+                                    .foregroundColor(.yellow)
+                            }
+                            TextField("Name", text: $player.name)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .disabled(scoreboard.state != .setup)
+                        }
                         HStack {
                             Text("\(player.score)")
+                                .opacity(scoreboard.state == .setup ? 0 : 1)
                             Stepper("Score", value: $player.score, in: 0...20)
                                 .labelsHidden()
+                                .opacity(scoreboard.state != .playing ? 0 : 1)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         ColorPicker("Color", selection: $player.color)
                             .labelsHidden()
+                            .disabled(scoreboard.state != .setup)
                     }
                 }
                 .onMove(perform: movePlayer)
                 .onDelete(perform: deletePlayer)
             }
             .listStyle(.inset)
-            switch scoreboard.state {
+            HStack {
+                Spacer()
+                switch scoreboard.state {
                 case .setup:
                     Button("Start Game", systemImage: "play.fill") {
                         scoreboard.state = .playing
@@ -68,7 +88,14 @@ struct ContentView: View {
                     Button("Reset Game", systemImage: "arrow.counterclockwise") {
                         scoreboard.state = .setup
                     }
+                }
+                Spacer()
             }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.capsule)
+            .controlSize(.large)
+            .tint(.blue)
+            .opacity(editMode.isEditing ? 0 : 1)
         }
         .padding()
         .environment(\.editMode, $editMode)
