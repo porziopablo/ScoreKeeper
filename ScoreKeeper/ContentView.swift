@@ -20,7 +20,8 @@ struct ContentView: View {
                 .padding(.bottom)
             SettingsView(
                 startingPoints: $startingPoints,
-                doesHighestScoreWin: $scoreboard.doesHighestScoreWin
+                doesHighestScoreWin: $scoreboard.doesHighestScoreWin,
+                roundsAmount: $scoreboard.roundsAmount
             )
             .padding(.bottom)
             .disabled(scoreboard.state != .setup || editMode.isEditing)
@@ -32,6 +33,14 @@ struct ContentView: View {
                 Spacer()
                 EditButton()
                 .opacity(scoreboard.state == .setup ? 1 : 0)
+            }
+            HStack {
+                Spacer()
+                Text("Round \(scoreboard.currentRound) of \(scoreboard.roundsAmount)")
+                    .font(.title3)
+                    .bold()
+                    .opacity(scoreboard.state == .setup ? 0 : 1)
+                Spacer()
             }
             List {
                 Section {
@@ -77,16 +86,18 @@ struct ContentView: View {
                 switch scoreboard.state {
                 case .setup:
                     Button("Start Game", systemImage: "play.fill") {
-                        scoreboard.state = .playing
-                        scoreboard.resetScores(to: startingPoints)
+                        scoreboard.startGame(to: startingPoints)
                     }
                 case .playing:
-                    Button("End Game", systemImage: "stop.fill") {
-                        scoreboard.state = .gameOver
+                    Button(
+                        scoreboard.currentRound < scoreboard.roundsAmount ? "Next Round" : "End Game",
+                        systemImage: scoreboard.currentRound < scoreboard.roundsAmount ? "forward.fill" : "stop.fill"
+                    ) {
+                        scoreboard.nextRound()
                     }
                 case .gameOver:
                     Button("Reset Game", systemImage: "arrow.counterclockwise") {
-                        scoreboard.state = .setup
+                        scoreboard.startSetup()
                     }
                 }
                 Spacer()

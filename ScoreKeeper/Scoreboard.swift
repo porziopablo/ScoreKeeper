@@ -8,15 +8,18 @@
 import Foundation
 
 struct Scoreboard {
-    var players: [Player] = [
-        Player(name:"Juli", score:0, color: .red),
-        Player(name:"Mauro", score:0, color: .blue),
-        Player(name:"Pablo", score:0, color: .green),
-    ]
-    
-    var state = GameState.setup
+    // config
     var doesHighestScoreWin = true
+    var roundsAmount = 1
     
+    // game state
+    var players: [Player] = [
+        Player(name: "Juli", score: 0, color: .red),
+        Player(name: "Mauro", score: 0, color: .blue),
+        Player(name: "Pablo", score: 0, color: .green),
+    ]
+    var state = GameState.setup
+    var currentRound = 1
     var winners: [Player] {
         guard state == .gameOver else { return [] }
         
@@ -41,5 +44,23 @@ struct Scoreboard {
         for index in 0..<players.count {
             players[index].score = newValue
         }
+    }
+    
+    mutating func nextRound() {
+        if currentRound == roundsAmount {
+            state = .gameOver
+        } else {
+            currentRound += 1
+        }
+    }
+    
+    mutating func startGame(to startingPoints: Int) {
+        state = .playing
+        currentRound = 1
+        resetScores(to: startingPoints)
+    }
+    
+    mutating func startSetup() {
+        state = .setup
     }
 }

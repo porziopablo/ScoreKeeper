@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @Binding var startingPoints: Int
     @Binding var doesHighestScoreWin: Bool
+    @Binding var roundsAmount: Int
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -25,6 +26,11 @@ struct SettingsView: View {
                 Text("10 starting points").tag(10)
                 Text("20 starting points").tag(20)
             }
+            Stepper(value: $roundsAmount, in: 1...Int.max) {
+                Text("\(roundsAmount) round\(roundsAmount > 1 ? "s" : "")")
+                    .foregroundColor(.accentColor)
+            }
+            .padding(.horizontal, 10)
         }
         .padding()
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 10))
@@ -34,5 +40,8 @@ struct SettingsView: View {
 #Preview {
     @Previewable @State var startingPoints = 10
     @Previewable @State var doesHighestScoreWin = true
-    SettingsView(startingPoints: $startingPoints, doesHighestScoreWin: $doesHighestScoreWin)
+    @Previewable @State var roundsAmount = 1
+    
+    SettingsView(startingPoints: $startingPoints, doesHighestScoreWin: $doesHighestScoreWin, roundsAmount: $roundsAmount)
+        
 }
