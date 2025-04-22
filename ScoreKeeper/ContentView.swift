@@ -9,7 +9,6 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var scoreboard = Scoreboard()
-    @State private var startingPoints = 0
     @State private var editMode: EditMode = .inactive
     
     var body: some View {
@@ -19,7 +18,7 @@ struct ContentView: View {
                 .bold()
                 .padding(.bottom)
             SettingsView(
-                startingPoints: $startingPoints,
+                startingPoints: $scoreboard.startingPoints,
                 doesHighestScoreWin: $scoreboard.doesHighestScoreWin,
                 roundsAmount: $scoreboard.roundsAmount
             )
@@ -27,7 +26,7 @@ struct ContentView: View {
             .disabled(scoreboard.state != .setup || editMode.isEditing)
             HStack {
                 Button("Add Player", systemImage: "plus") {
-                    scoreboard.players.append(Player(name: "", score: 0, color: randomColor()))
+                    scoreboard.addPlayer(newPlayer: Player(name: "", score: 0, color: randomColor()))
                 }
                 .opacity(scoreboard.state == .setup ? 1 : 0)
                 Spacer()
@@ -77,28 +76,32 @@ struct ContentView: View {
                             .disabled(scoreboard.state != .setup)
                     }
                 }
-                .onMove(perform: movePlayer)
-                .onDelete(perform: deletePlayer)
+                .onMove { indices, newOffset in
+                    scoreboard.movePlayer(from: indices, to: newOffset)
+                }
+                .onDelete { indices in
+                    scoreboard.removePlayer(at: indices.first ?? 0)
+                }
             }
             .listStyle(.inset)
             HStack {
                 Spacer()
                 switch scoreboard.state {
-                case .setup:
-                    Button("Start Game", systemImage: "play.fill") {
-                        scoreboard.startGame(to: startingPoints)
-                    }
-                case .playing:
-                    Button(
-                        scoreboard.currentRound < scoreboard.roundsAmount ? "Next Round" : "End Game",
-                        systemImage: scoreboard.currentRound < scoreboard.roundsAmount ? "forward.fill" : "stop.fill"
-                    ) {
-                        scoreboard.nextRound()
-                    }
-                case .gameOver:
-                    Button("Reset Game", systemImage: "arrow.counterclockwise") {
-                        scoreboard.startSetup()
-                    }
+                    case .setup:
+                        Button("Start Game", systemImage: "play.fill") {
+                            scoreboard.startGame()
+                        }
+                    case .playing:
+                        Button(
+                            scoreboard.currentRound < scoreboard.roundsAmount ? "Next Round" : "End Game",
+                            systemImage: scoreboard.currentRound < scoreboard.roundsAmount ? "forward.fill" : "stop.fill"
+                        ) {
+                            scoreboard.nextRound()
+                        }
+                    case .gameOver:
+                        Button("Reset Game", systemImage: "arrow.counterclockwise") {
+                            scoreboard.startSetup()
+                        }
                 }
                 Spacer()
             }
@@ -118,14 +121,6 @@ struct ContentView: View {
            green: Double.random(in: 0...1),
            blue: Double.random(in: 0...1)
        )
-    }
-    
-    private func deletePlayer(at offsets: IndexSet) {
-        scoreboard.players.remove(atOffsets: offsets)
-    }
-
-    private func movePlayer(from source: IndexSet, to destination: Int) {
-        scoreboard.players.move(fromOffsets: source, toOffset: destination)
     }
 }
 

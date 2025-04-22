@@ -11,6 +11,7 @@ struct Scoreboard {
     // config
     var doesHighestScoreWin = true
     var roundsAmount = 1
+    var startingPoints = 0
     
     // game state
     var players: [Player] = [
@@ -54,7 +55,7 @@ struct Scoreboard {
         }
     }
     
-    mutating func startGame(to startingPoints: Int) {
+    mutating func startGame() {
         state = .playing
         currentRound = 1
         resetScores(to: startingPoints)
@@ -62,5 +63,17 @@ struct Scoreboard {
     
     mutating func startSetup() {
         state = .setup
+    }
+    
+    mutating func addPlayer(newPlayer: Player) {
+        players.append(newPlayer)
+    }
+    
+    mutating func removePlayer(at index: Int) {
+        players.remove(at: index)
+    }
+    
+    mutating func movePlayer(from source: IndexSet, to destination: Int) {
+        players.move(fromOffsets: source, toOffset: destination)
     }
 }
