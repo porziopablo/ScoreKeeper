@@ -172,7 +172,7 @@ struct ScoreKeeperTests {
     }
     
     @Test("Delete player")
-    mutating func deletePlayer() {
+    func deletePlayer() {
         let player1 = Player(name: "Player 1", score: 0, color: .red)
         let player2 = Player(name: "Player 2", score: 0, color: .blue)
         
@@ -190,7 +190,7 @@ struct ScoreKeeperTests {
     }
     
     @Test("Move player")
-    mutating func movePlayer() {
+    func movePlayer() {
         let player1 = Player(name: "Player 1", score: 0, color: .red)
         let player2 = Player(name: "Player 2", score: 0, color: .blue)
         
@@ -205,5 +205,45 @@ struct ScoreKeeperTests {
         #expect(scoreboard.players[0] == player2)
         #expect(scoreboard.players[1] == player1)
         #expect(scoreboard.players.count == 2)
+    }
+    
+    @Test("Check for winner when highest score wins")
+    func checkForWinnerHighestScoreWins() {
+        let player1 = Player(name: "Player 1", score: 0, color: .red)
+        let player2 = Player(name: "Player 2", score: 10, color: .blue)
+        
+        var scoreboard = Scoreboard(
+            doesHighestScoreWin: true,
+            roundsAmount: 3,
+            winningPoints: 10,
+            players: [player1, player2],
+            state: .playing,
+            currentRound: 2,
+        )
+        
+        scoreboard.checkForWinner()
+        
+        #expect(scoreboard.state == .gameOver)
+        #expect(scoreboard.winners == [player2])
+    }
+    
+    @Test("Check for winner when lowest score wins")
+    func checkForWinnerLowestScoreWins() {
+        let player1 = Player(name: "Player 1", score: 10, color: .red)
+        let player2 = Player(name: "Player 2", score: 0, color: .blue)
+        
+        var scoreboard = Scoreboard(
+            doesHighestScoreWin: false,
+            roundsAmount: 3,
+            winningPoints: 0,
+            players: [player1, player2],
+            state: .playing,
+            currentRound: 2,
+        )
+        
+        scoreboard.checkForWinner()
+        
+        #expect(scoreboard.state == .gameOver)
+        #expect(scoreboard.winners == [player2])
     }
 }

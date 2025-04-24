@@ -12,6 +12,7 @@ struct Scoreboard {
     var doesHighestScoreWin = true
     var roundsAmount = 1
     var startingPoints = 0
+    var winningPoints = 0
     
     // game state
     var players: [Player] = [
@@ -75,5 +76,21 @@ struct Scoreboard {
     
     mutating func movePlayer(from source: IndexSet, to destination: Int) {
         players.move(fromOffsets: source, toOffset: destination)
+    }
+    
+    mutating func checkForWinner() {
+        if doesHighestScoreWin {
+            for player in players {
+                if player.score >= winningPoints {
+                    state = .gameOver
+                }
+            }
+        } else {
+            for player in players {
+                if player.score <= winningPoints {
+                    state = .gameOver
+                }
+            }
+        }
     }
 }

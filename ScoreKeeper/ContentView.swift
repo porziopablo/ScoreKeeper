@@ -20,7 +20,8 @@ struct ContentView: View {
             SettingsView(
                 startingPoints: $scoreboard.startingPoints,
                 doesHighestScoreWin: $scoreboard.doesHighestScoreWin,
-                roundsAmount: $scoreboard.roundsAmount
+                roundsAmount: $scoreboard.roundsAmount,
+                winningPoints: $scoreboard.winningPoints
             )
             .padding(.bottom)
             .disabled(scoreboard.state != .setup || editMode.isEditing)
@@ -66,9 +67,16 @@ struct ContentView: View {
                         HStack {
                             Text("\(player.score)")
                                 .opacity(scoreboard.state == .setup ? 0 : 1)
-                            Stepper("Score", value: $player.score, in: 0...20)
-                                .labelsHidden()
-                                .opacity(scoreboard.state != .playing ? 0 : 1)
+                            Stepper(
+                                "Score",
+                                value: $player.score,
+                                in: 0...Int.max,
+                                onEditingChanged: { _ in
+                                    scoreboard.checkForWinner()
+                                }
+                            )
+                            .labelsHidden()
+                            .opacity(scoreboard.state != .playing ? 0 : 1)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         ColorPicker("Color", selection: $player.color)

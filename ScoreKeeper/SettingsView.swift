@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Binding var startingPoints: Int
     @Binding var doesHighestScoreWin: Bool
     @Binding var roundsAmount: Int
+    @Binding var winningPoints: Int
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -31,6 +32,11 @@ struct SettingsView: View {
                     .foregroundColor(.accentColor)
             }
             .padding(.horizontal, 10)
+            Stepper(value: $winningPoints, in: 0...Int.max) {
+                Text("\(winningPoints) winning points")
+                    .foregroundColor(.accentColor)
+            }
+            .padding(.horizontal, 10)
         }
         .padding()
         .background(.ultraThinMaterial, in: .rect(cornerRadius: 10))
@@ -41,7 +47,7 @@ struct SettingsView: View {
     @Previewable @State var startingPoints = 10
     @Previewable @State var doesHighestScoreWin = true
     @Previewable @State var roundsAmount = 1
+    @Previewable @State var winningPoints = 0
     
-    SettingsView(startingPoints: $startingPoints, doesHighestScoreWin: $doesHighestScoreWin, roundsAmount: $roundsAmount)
-        
+    SettingsView(startingPoints: $startingPoints, doesHighestScoreWin: $doesHighestScoreWin, roundsAmount: $roundsAmount, winningPoints: $winningPoints)
 }
